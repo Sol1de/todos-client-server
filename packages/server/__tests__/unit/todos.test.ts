@@ -1,13 +1,9 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest'
-import { getAllTodos, addTodo, toggleTodo, deleteTodo } from '../../src/todos.js'
+import { readTodos, writeTodos } from '../../src/storage'
+import { getAllTodos, addTodo, toggleTodo, deleteTodo } from '../../src/todos'
 
 // Mock du module storage
-vi.mock('../../src/storage.js', () => ({
-  readTodos: vi.fn(),
-  writeTodos: vi.fn()
-}))
-
-import { readTodos, writeTodos } from '../../src/storage.js'
+vi.mock('../../src/storage')
 
 const mockReadTodos = vi.mocked(readTodos)
 const mockWriteTodos = vi.mocked(writeTodos)
