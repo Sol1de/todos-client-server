@@ -1,0 +1,9 @@
+#ignore modules files
+node_modules
+
+#fichier locaux de build
+dist
+.npm
+
+#logs & drivers
+npm-debug.log
