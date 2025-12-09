@@ -142,6 +142,27 @@ jobs:
           path: react-nginx.tar
           retention-days: 1
 
+  security-scan-npm:
+    name: security-scan-npm
+    runs-on: ubuntu-latest
+    if: github.event_name == 'pull_request'
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Use Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '22.x'
+
+      - name: Audit server dependencies
+        working-directory: packages/server
+        run: npm audit --audit-level=high
+
+      - name: Audit client dependencies
+        working-directory: packages/client
+        run: npm audit --audit-level=high
+
   security-scan-docker:
     name: security-scan-docker
     runs-on: ubuntu-latest
