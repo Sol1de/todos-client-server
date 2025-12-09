@@ -1,4 +1,5 @@
-const API_URL = import.meta.env.VITE_API_URL || '/api/todos';
+const API_URL = import.meta.env.VITE_API_BASE_URL  || '/api/todos';
+console.log(API_URL);
 
 export interface Todo {
   id: string;
