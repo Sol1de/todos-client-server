@@ -1,4 +1,4 @@
-const API_URL = 'http://localhost:3001/api/todos';
+const API_URL = import.meta.env.VITE_API_URL || '/api/todos';
 
 export interface Todo {
   id: string;
