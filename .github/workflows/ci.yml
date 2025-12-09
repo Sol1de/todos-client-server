@@ -130,8 +130,4 @@ jobs:
         uses: actions/checkout@v4
 
       - name: Build Docker image
-        uses: docker/build-push-action@v6
-        with:
-          context: .
-          push: false
-          tags: todo-server:${{ github.sha }}
+        run: docker build -t react-nginx .
