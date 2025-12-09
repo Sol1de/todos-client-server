@@ -1,40 +1,30 @@
 #-------Builder Section--------
-FROM node:24-alpine AS builder
+FROM node:24 AS builder
 
 WORKDIR /usr/src/app
 
-# Build server
-COPY packages/server/package*.json ./packages/server/
-RUN cd packages/server && npm install
-COPY packages/server ./packages/server
-RUN cd packages/server && npm run build
+COPY packages/server/package*.json .
 
-# Build client
-COPY packages/client/package*.json ./packages/client/
-RUN cd packages/client && npm install
-COPY packages/client ./packages/client
-RUN cd packages/client && npm run build
+RUN npm install
+
+COPY ./packages/server .
+
+RUN npm run build
 
 #-------Runner Section--------
-FROM node:24-alpine
+FROM node:24-alpine AS runner
 
-# Install nginx
-RUN apk add --no-cache nginx
+WORKDIR /usr/src/app
 
-WORKDIR /app
+# on copie le build et les fichiers package depuis le stage builder
+COPY --from=builder /usr/src/app/dist ./dist
+COPY --from=builder /usr/src/app/package*.json .
 
-# Copy server build + production dependencies
-COPY --from=builder /usr/src/app/packages/server/dist ./server/dist
-COPY --from=builder /usr/src/app/packages/server/package*.json ./server/
-COPY --from=builder /usr/src/app/packages/server/src/data ./server/src/data
-RUN cd server && npm install --omit=dev
+# on installe uniquement les dépendances de production
+RUN npm install --omit=dev
 
-# Copy client build to nginx html folder
-COPY --from=builder /usr/src/app/packages/client/dist /usr/share/nginx/html
+# on expose le port de l'API Express
+EXPOSE 3001
 
-# Nginx config
-COPY nginx.conf /etc/nginx/http.d/default.conf
-
-EXPOSE 80
-
-CMD ["sh", "-c", "node /app/server/dist/index.js & nginx -g 'daemon off;'"]
+# on lance le serveur
+CMD ["node", "dist/index.js"]
