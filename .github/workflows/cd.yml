@@ -33,9 +33,6 @@ jobs:
   deploy-frontend:
     runs-on: ubuntu-latest
     environment: Production
-    defaults:
-      run:
-        working-directory: packages/client
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
@@ -46,7 +43,7 @@ jobs:
           vercel-token: ${{ secrets.VERCEL_TOKEN }}
           vercel-org-id: ${{ secrets.VERCEL_ORG_ID }}
           vercel-project-id: ${{ secrets.VERCEL_PROJECT_ID }}
-          vercel-args: '--prod'
+          vercel-args: '--prod --debug'
           working-directory: ./packages/client
 
   deploy-backend:
