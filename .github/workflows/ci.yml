@@ -121,6 +121,34 @@ jobs:
           path: packages/server/dist/
           retention-days: 1
 
+  # ------------------------------------------------------------------
+  # NOUVEAU JOB : NOTIFICATION (Fin de la CI)
+  # ------------------------------------------------------------------
+  notify:
+    name: Envoyer la notification Discord
+    environment: Production
+    if: always()
+    runs-on: ubuntu-latest
+    needs: [test-unit, lint-commits, coverage, build]
+
+    steps:
+      - name: Envoyer la notification de statut à Discord
+        uses: rjstone/discord-webhook-notify@v5
+
+        with:
+          # Paramètre de l'URL pour cette nouvelle Action
+          webhook: ${{ secrets.DISCORD_WEBHOOK_URL }}
+
+          # Construction du message de statut Succès ou Échec
+          content: |
+            ${{ job.status == 'success' && '✅ CI OK' || '❌ CI CASSÉE' }}
+            Branche: ${{ github.ref_name }}
+            Commit: ${{ github.sha }}
+            Résultat: ${{ job.status }}
+
+          # Ajout d'un lien direct vers l'exécution GitHub
+          url: ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}
+
   build-docker:
     runs-on: ubuntu-latest
     needs: [test-unit, build]
