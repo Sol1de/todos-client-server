@@ -28,4 +28,4 @@ RUN npm install --omit=dev
 EXPOSE 3001
 
 # on lance le serveur
-CMD ["node", "dist/index.js"]
+CMD ["node", "--import", "./instrument.mjs", "dist/index.js"]
