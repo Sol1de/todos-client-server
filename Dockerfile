@@ -19,6 +19,7 @@ WORKDIR /usr/src/app
 # on copie le build et les fichiers package depuis le stage builder
 COPY --from=builder /usr/src/app/dist ./dist
 COPY --from=builder /usr/src/app/package*.json .
+COPY --from=builder /usr/src/app/instrument.mjs .
 
 # on installe uniquement les dépendances de production
 RUN npm install --omit=dev
