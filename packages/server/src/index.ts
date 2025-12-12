@@ -31,6 +31,11 @@ app.delete('/api/todos/:id', async (req, res) => {
   res.json(result);
 });
 
+app.get("/debug-sentry", function mainHandler(req, res) {
+  throw new Error("My first Sentry error!");
+});
+
+// Sentry error handler must be after all routes but before other error handlers
 Sentry.setupExpressErrorHandler(app);
 
 app.use(function onError(err: any, req: any, res: any, next: any) {
@@ -38,10 +43,6 @@ app.use(function onError(err: any, req: any, res: any, next: any) {
   // and optionally displayed to the user for support.
   res.statusCode = 500;
   res.end(res.sentry + "\n");
-});
-
-app.get("/debug-sentry", function mainHandler(req, res) {
-  throw new Error("My first Sentry error!");
 });
 
 app.listen(PORT, () => {
