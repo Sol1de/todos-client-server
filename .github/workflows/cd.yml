@@ -78,11 +78,25 @@ jobs:
         run: |
           curl "${{ secrets.RENDER_DEPLOY_HOOK }}&img=${{ secrets.DOCKERHUB_USERNAME }}/${{ secrets.DOCKERHUB_PROJECT_NAME }}"
 
+  smoke-test:
+    name: Smoke Test Production
+    runs-on: ubuntu-latest
+    environment: Production
+    needs: [deploy-backend, deploy-frontend]
+    steps:
+      - name: Smoke test backend
+        run: |
+          curl -f --retry 5 --retry-delay 10 ${{ secrets.BACKEND_URL }}/health | grep -q '"success":"ok"'
+
+      - name: Smoke test frontend
+        run: |
+          curl -f --retry 5 --retry-delay 10 ${{ secrets.FRONTEND_URL }} | grep -q "Todo List"
+
   notify:
     name: Notify Discord of Deployment Status
     runs-on: ubuntu-latest
     environment: Production
-    needs: [deploy-backend, deploy-frontend]
+    needs: [deploy-backend, deploy-frontend, smoke-test]
     if: always()
 
     steps:
@@ -96,7 +110,7 @@ jobs:
           echo "RUN_URL=https://github.com/${{ github.repository }}/actions/runs/${{ github.run_id }}" >> $GITHUB_ENV
 
       - name: Send Success Notification
-        if: ${{ needs.deploy-backend.result == 'success' && needs.deploy-frontend.result == 'success' }}
+        if: ${{ needs.smoke-test.result == 'success' }}
         run: |
           curl -X POST -H "Content-Type: application/json" \
           -d '{
@@ -113,7 +127,7 @@ jobs:
           "${{ secrets.DISCORD_WEBHOOK_URL }}"
 
       - name: Send Failure Notification
-        if: ${{ needs.deploy-backend.result != 'success' || needs.deploy-frontend.result != 'success' }}
+        if: ${{ needs.smoke-test.result != 'success' }}
         run: |
           curl -X POST -H "Content-Type: application/json" \
           -d '{
