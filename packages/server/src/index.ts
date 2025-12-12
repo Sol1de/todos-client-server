@@ -1,3 +1,5 @@
+import "../instrument.mjs";
+import * as Sentry from "@sentry/node"
 import express from 'express';
 import cors from 'cors';
 import { getAllTodos, addTodo, toggleTodo, deleteTodo } from './todos.js';
@@ -27,6 +29,19 @@ app.patch('/api/todos/:id', async (req, res) => {
 app.delete('/api/todos/:id', async (req, res) => {
   const result = await deleteTodo(req.params.id);
   res.json(result);
+});
+
+Sentry.setupExpressErrorHandler(app);
+
+app.use(function onError(err: any, req: any, res: any, next: any) {
+  // The error id is attached to `res.sentry` to be returned
+  // and optionally displayed to the user for support.
+  res.statusCode = 500;
+  res.end(res.sentry + "\n");
+});
+
+app.get("/debug-sentry", function mainHandler(req, res) {
+  throw new Error("My first Sentry error!");
 });
 
 app.listen(PORT, () => {
