@@ -81,7 +81,7 @@ jobs:
   notify:
     name: Notify Discord of Deployment Status
     runs-on: ubuntu-latest
-    environment: production
+    environment: Production
     needs: [deploy-backend, deploy-frontend]
     if: always()
 
@@ -113,7 +113,7 @@ jobs:
           "${{ secrets.DISCORD_WEBHOOK_URL }}"
 
       - name: Send Failure Notification
-        if: ${{ needs.smoke-test.result != 'success' }}
+        if: ${{ needs.deploy-backend.result != 'success' || needs.deploy-frontend.result != 'success' }}
         run: |
           curl -X POST -H "Content-Type: application/json" \
           -d '{
